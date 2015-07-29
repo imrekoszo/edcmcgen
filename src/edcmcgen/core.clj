@@ -70,9 +70,6 @@
          non-empty true} (group-by second-not-empty? mappings)]
     [non-empty empty]))
 
-(defn format-key-mapping [[command key]]
-  (format "%1$-35s %2$s" (name command) key))
-
 (defn translate-binds [s]
   (->> (x/parse s)
        :content

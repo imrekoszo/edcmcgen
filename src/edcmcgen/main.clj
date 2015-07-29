@@ -1,6 +1,13 @@
-(ns edcmcgen.main)
+(ns edcmcgen.main
+  (:require [edcmcgen.core :refer :all]
+            [clojure.string :as s]))
 
-(defn -main
-  "I don't do a whole lot ... yet."
-  [& args]
-  (println (str "Hello, " (first args) "!")))
+(defn -main [filename]
+  (->> "../../Documents/ch-products-elite-map/config/Custom.binds"
+       translate-binds
+       :mapped-to-keys
+       (map format-key-mapping)
+       sort
+       (s/join "\n")
+       println
+       ))

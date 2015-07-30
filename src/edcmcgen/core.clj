@@ -6,14 +6,23 @@
 (defn primary? [m]
   (= :Primary (:tag m)))
 
+(defn get-modifiers [binding-content]
+  (->> binding-content
+       (filter #(= :Modifier (:tag %)))
+       (map #(get-in % [:attrs :Key]))))
+
+(defn get-modifiers-and-key [binding-map]
+  (->> [(get-modifiers (:content binding-map))
+        (get-in binding-map [:attrs :Key])]
+       flatten
+       (s/join " ")))
+
 (defn extract-primary-keybind [e]
   [(:tag e)
    (->> (:content e)
         (filter primary?)
         first
-        :attrs
-        :Key
-        #_(get-in % [:attrs :Key])
+        get-modifiers-and-key
         )])
 
 (defn second-not-empty? [l]
@@ -70,9 +79,13 @@
          non-empty true} (group-by second-not-empty? mappings)]
     [non-empty empty]))
 
+(defn get-config-content [s]
+  (-> s
+      x/parse
+      :content))
+
 (defn translate-binds [s]
-  (->> (x/parse s)
-       :content
+  (->> (get-config-content s)
        (map extract-primary-keybind)
        split-second-not-empty
        (#(vector (->> (first %)

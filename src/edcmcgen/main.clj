@@ -7,7 +7,7 @@
 
 (defn -main [filename]
   (let [info (translate-binds filename)
-        mk (->> info :mapped-to-keys (map format-key-mapping) sort (s/join "\n"))
+        mk (->> info :mapped-to-keys (sort-by second) (map format-key-mapping) (s/join "\n"))
         mj (->> info :mapped-to-joy (map format-key-mapping) sort (s/join "\n"))
         nm (->> info :not-mapped (map name) sort (s/join "\n"))]
     (do (println "Mapped to keys:\n--------------------------------------------------")

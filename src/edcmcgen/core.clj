@@ -1,5 +1,4 @@
 (ns edcmcgen.core
-  (:gen-class)
   (:require [clojure.xml :as x]
             [clojure.string :as s]))
 
@@ -92,9 +91,7 @@
                       (map translate-key)
                       split-kb-joy)
                  (second %)))
-       (#(hash-map :mapped-to-keys (->> % first first)
-                   :mapped-to-joy  (-> % first second)
-                   :not-mapped     (->> % second
-                                        (map first)
-                                        )))
+       (#(hash-map :mapped-to-keys (->> % first first (into {}))
+                   :mapped-to-joy  (->> % first second (into {}))
+                   :not-mapped     (->> % second (map first))))
        ))

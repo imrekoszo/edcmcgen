@@ -10,7 +10,11 @@ Clone this repo.
 
 Currently you will need [Leiningen](http://leiningen.org/) to run it:
 
-    $ lein run path/to/Custom.binds
+    $ lein run -- path/to/Custom.binds
+
+To get a full list of options, run:
+
+    $ lein run -- -h
 
 ## License
 

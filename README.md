@@ -16,6 +16,10 @@ To get a full list of options, run:
 
     $ lein run -- -h
 
+## Code
+
+Pretty ugly at the moment but seems to do the job.
+
 ## License
 
 Copyright © 2015 Imre Kószó

@@ -45,6 +45,11 @@
    ["Key_Space" "SPC"]
    ["Key_Tab" "TAB"]
    ["Key_UpArrow" "KBUP"]
+   ["Key_Period" "."]
+   ["Key_Comma" ","]
+   ["Key_Numpad_Add" "KP+"]
+   ["Key_Numpad_Divide" "KP/"]
+   ["Key_Numpad_Multiply" "KP*"]
    ["Key_Numpad_" "KP"]
    ["Key_" ""]])
 

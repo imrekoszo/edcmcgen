@@ -29,22 +29,44 @@
 (defn get-extra-mappings [extras-file]
   (if extras-file (slurp extras-file) ""))
 
-(defn -main [& args]
- (let [{:keys [options arguments errors summary]} (cli/parse-opts args cli-options)]
-   (cond
-     (:help options) (exit 0 (usage summary))
-     (not= 1 (count arguments)) (exit 1 (usage summary))
-     (not (existing-file? (first arguments))) (exit 1 (error-msg ["Invalid binding file path"]))
-     errors (exit 1 (error-msg errors)))
 
-   (let [bindings-file (first arguments)
+
+; read config
+; read input
+; process input
+;  transform xml into proper data
+;  filter data into groups
+;  translate e:d keys
+;  do data manipulation
+; add extra raw data
+; write output
+
+(defn get-valid-options [args]
+  (let [{:keys [options arguments errors summary]} (cli/parse-opts args cli-options)
+        elite-bindings-path (first arguments)]
+    (do
+      (cond
+        (:help options) (exit 0 (usage summary))
+        (not= 1 (count arguments)) (exit 1 (usage summary))
+        (not (existing-file? elite-bindings-path)) (exit 1 (error-msg ["Invalid binding file path"]))
+        errors (exit 1 (error-msg errors)))
+
+      {:elite-bindings-path     elite-bindings-path
+       :macro-definitions-path  (:macro-file options)
+       :static-cmc-content-path (:extra-commands-file options)}))
+  )
+
+(defn -main [& args]
+ (let [options (get-valid-options args)]
+
+   (let [bindings-file (:elite-bindings-path options)
          info (translate-binds bindings-file)
-         translated-macros (get-translated-macros (:macro-file options) (:mapped-to-keys info))
+         translated-macros (get-translated-macros (:macro-definitions-path options) (:mapped-to-keys info))
          mk (->> info :mapped-to-keys (sort-by first) (map format-key-mapping) (s/join \newline))
          mm (->> translated-macros (sort-by first) (map format-key-mapping) (s/join \newline))
          mj (->> info :mapped-to-joy (map format-key-mapping) (map #(str "// " %)) sort (s/join \newline))
          nm (->> info :not-mapped (map name) (map #(str "// " %)) sort (s/join \newline))
-         extra (get-extra-mappings (:extra-commands-file options))]
+         extra (get-extra-mappings (:static-cmc-content-path options))]
      (do (println "// Commands mapped to keys ----------------------------------------------------")
          (println mk)
          (println)

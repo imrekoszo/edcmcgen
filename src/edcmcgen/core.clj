@@ -1,6 +1,7 @@
 (ns edcmcgen.core
   (:require [clojure.xml :as x]
-            [clojure.string :as s]))
+            [clojure.string :as s]
+            [clojure.edn :as edn]))
 
 (defn primary? [m]
   (= :Primary (:tag m)))
@@ -88,8 +89,21 @@
       x/parse
       :content))
 
-(defn translate-binds [s]
-  (->> (get-config-content s)
+(defn translate-macro [mac dict]
+  (s/join " " (map #(get dict % %) mac)))
+
+(defn value-map
+  "Produce a map where for every [k v] of m, [k (f v)] is part of the new map"
+  [f m]
+  (into {} (for [[k v] m] [k (f v)])))
+
+(defn get-translated-macros [macros keybindings]
+  (when macros
+    (value-map #(translate-macro % keybindings) (edn/read-string macros))))
+
+
+(defn translate-binds [bindings macros]
+  (->> (get-config-content bindings)
        (map extract-primary-keybind)
        split-second-not-empty
        (#(vector (->> (first %)
@@ -99,4 +113,5 @@
        (#(hash-map :mapped-to-keys (->> % first first (into {}))
                    :mapped-to-joy  (->> % first second (into {}))
                    :not-mapped     (->> % second (map first))))
+       (#(assoc % :macros (get-translated-macros macros (:mapped-to-keys %))))
        ))

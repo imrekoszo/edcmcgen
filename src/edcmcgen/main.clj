@@ -3,7 +3,7 @@
             [clojure.string :as s]
             [clojure.tools.cli :as cli]
             [edcmcgen.cli :refer :all]
-            [clojure.edn :as edn])
+            [clojure.java.io :as io])
   (:gen-class))
 
 (defn format-key-mapping [[command key]]
@@ -12,24 +12,6 @@
 (defn exit [status msg]
   (println msg)
   (System/exit status))
-
-(defn value-map
-  "Produce a map where for every [k v] of m, [k (f v)] is part of the new map"
-  [f m]
-  (into {} (for [[k v] m] [k (f v)])))
-
-(defn translate-macro [mac dict]
-  (s/join " " (map #(get dict % %) mac)))
-
-(defn get-translated-macros [macro-file keybindings]
-  (when macro-file
-    (let [macros (edn/read-string (slurp macro-file))]
-      (value-map #(translate-macro % keybindings) macros))))
-
-(defn get-extra-mappings [extras-file]
-  (if extras-file (slurp extras-file) ""))
-
-
 
 ; read config
 ; read input
@@ -56,30 +38,40 @@
        :static-cmc-content-path (:extra-commands-file options)}))
   )
 
-(defn -main [& args]
- (let [options (get-valid-options args)]
+(defn read-input [{bindings :elite-bindings-path
+                   macros :macro-definitions-path
+                   static :static-cmc-content-path}]
+  {:elite-bindings    (io/input-stream bindings)
+   :macro-definitions (when macros (slurp macros))
+   :static-cmc        (when static (slurp static))})
 
-   (let [bindings-file (:elite-bindings-path options)
-         info (translate-binds bindings-file)
-         translated-macros (get-translated-macros (:macro-definitions-path options) (:mapped-to-keys info))
+(defn -main [& args]
+ (let [options (get-valid-options args)
+       {:keys [elite-bindings
+               macro-definitions
+               static-cmc]} (read-input options)]
+
+   (let [info (translate-binds elite-bindings macro-definitions)
          mk (->> info :mapped-to-keys (sort-by first) (map format-key-mapping) (s/join \newline))
-         mm (->> translated-macros (sort-by first) (map format-key-mapping) (s/join \newline))
+         mm (->> info :macros (sort-by first) (map format-key-mapping) (s/join \newline))
          mj (->> info :mapped-to-joy (map format-key-mapping) (map #(str "// " %)) sort (s/join \newline))
          nm (->> info :not-mapped (map name) (map #(str "// " %)) sort (s/join \newline))
-         extra (get-extra-mappings (:static-cmc-content-path options))]
+         ]
      (do (println "// Commands mapped to keys ----------------------------------------------------")
          (println mk)
          (println)
-         (println "// Macros ---------------------------------------------------------------------")
-         (println mm)
-         (println)
-         (println "// Extra commands -------------------------------------------------------------")
-         (println extra)
-         (println)
+         (when macro-definitions
+           (println "// Macros ---------------------------------------------------------------------")
+           (println mm)
+           (println))
+         (when static-cmc
+           (println "// Extra commands -------------------------------------------------------------")
+           (println static-cmc)
+           (println))
          (println "// Commands mapped to joystick buttons ----------------------------------------")
          (println mj)
          (println)
-         (println "// Commands not mapped --------------------------------------------------------")
+         (println "// Bindings not mapped or unknown ---------------------------------------------")
          (println nm))
      )
    )

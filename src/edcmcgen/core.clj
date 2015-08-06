@@ -115,3 +115,60 @@
                    :not-mapped (->> % second (map first))))
        (#(assoc % :macros (get-translated-macros macros (:mapped-to-keys %))))
        ))
+
+
+#_(letfn [(seq-of-maps?
+          [value]
+          (and (sequential? value)
+               (not (empty? value))
+               (every? map? value)))
+        (tr
+          [m]
+          [(:tag m)
+           (merge {}
+                  (:attrs m)
+                  (cond (seq-of-maps? (:content m)) (into {} (map tr (:content m)))
+                        (nil? (:content m)) nil
+                        :else {:content (:content m)}))])
+        (category
+          [[_ {binding :Binding value :Value primary :Primary}]]
+          (cond binding :axes
+                value :settings
+                primary :commands
+                :else :misc))
+        (flatten-settings
+          [settings]
+          (for [[n {v :Value}] settings] [n v]))
+        (flatten-axes
+          [axes]
+          (for [[n {{key :Key device :Device} :Binding
+                    {iv :Value}               :Inverted
+                    {dv :Value}               :Deadzone}] axes]
+            [n {:Device   device
+                :Axis     key
+                :Inverted iv
+                :Deadzone dv}]))
+        (flatten-commands
+          [commands]
+          (for [[n {{key :Key device :Device {modifier :Key} :Modifier} :Primary :as v}] commands]
+            [n (-> (dissoc v :Primary :Secondary)
+                   (#(into {} (for [[k {v :Value}] %] [k v])))
+                   (assoc :Key key :Device device)
+                   (#(if modifier (assoc % :Modifier modifier) %)))]))
+        (device
+          [[_ {d :Device}]]
+          (case d
+            "Keyboard" :keyboard
+            "{NoDevice}" :unbound
+            :controller))]
+  (->> "../../Documents/ch-products-elite-map/config/Custom.binds"
+       clojure.xml/parse
+       tr
+       second
+       (group-by category)
+       (#(update-in % [:settings] flatten-settings))
+       (#(update-in % [:axes] (comp (partial group-by device) flatten-axes)))
+       (#(update-in % [:commands] (comp (partial group-by device) flatten-commands)))
+       :commands
+       keys
+       pprint))

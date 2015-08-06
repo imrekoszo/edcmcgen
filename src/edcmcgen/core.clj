@@ -75,7 +75,7 @@
        boolean))
 
 (defn split-kb-joy [mappings]
-  (let [{kb false
+  (let [{kb  false
          joy true} (group-by joy-mapping? mappings)]
     [kb joy]))
 
@@ -111,7 +111,7 @@
                       split-kb-joy)
                  (second %)))
        (#(hash-map :mapped-to-keys (->> % first first (into {}))
-                   :mapped-to-joy  (->> % first second (into {}))
-                   :not-mapped     (->> % second (map first))))
+                   :mapped-to-joy (->> % first second (into {}))
+                   :not-mapped (->> % second (map first))))
        (#(assoc % :macros (get-translated-macros macros (:mapped-to-keys %))))
        ))

@@ -22,7 +22,7 @@
 ;  do data manipulation
 ; format ✓
 ; add extra raw data ✓
-; write output
+; write output ✓
 
 (defn get-valid-options [args]
   (let [{:keys [options arguments errors summary]} (cli/parse-opts args cli-options)
@@ -59,29 +59,36 @@
        sort
        (s/join \newline)))
 
+(defn right-pad-with-dash [s width]
+  (let [dash-count (- width (count s))
+        dashes (take dash-count (repeat \-))]
+    (apply str (cons s dashes))))
+
+(defn print-section [name content]
+  (let [header (right-pad-with-dash (str "// " name " ") 80)]
+    (do (println header)
+        (println content)
+        (println))))
+
+(defn print-output [{:keys [mapped-to-keys
+                            macros
+                            mapped-to-joy
+                            not-mapped]}
+                    static-cmc]
+  (do (print-section "Commands mapped to keys" (format-bindings mapped-to-keys))
+      (when macros
+        (print-section "Macros" (format-bindings macros)))
+      (when static-cmc
+        (print-section "Static content" static-cmc))
+      (print-section "Commands mapped to joystick buttons"
+                     (format-commented mapped-to-joy format-key-mapping))
+      (print-section "Bindings not mapped or unknown"
+                     (format-commented not-mapped name))))
+
 (defn -main [& args]
   (let [options (get-valid-options args)
         {:keys [elite-bindings
                 macro-definitions
-                static-cmc]} (read-input options)]
-
-    (let [info (translate-binds elite-bindings macro-definitions)]
-      (do (println "// Commands mapped to keys ----------------------------------------------------")
-          (println (format-bindings (:mapped-to-keys info)))
-          (println)
-          (when macro-definitions
-            (println "// Macros ---------------------------------------------------------------------")
-            (println (format-bindings (:macros info)))
-            (println))
-          (when static-cmc
-            (println "// Extra commands -------------------------------------------------------------")
-            (println static-cmc)
-            (println))
-          (println "// Commands mapped to joystick buttons ----------------------------------------")
-          (println (format-commented (:mapped-to-joy info) format-key-mapping))
-          (println)
-          (println "// Bindings not mapped or unknown ---------------------------------------------")
-          (println (format-commented (:not-mapped info) name)))
-      )
-    )
-  )
+                static-cmc]} (read-input options)
+        info (translate-binds elite-bindings macro-definitions)]
+    (print-output info static-cmc)))

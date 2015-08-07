@@ -21,7 +21,7 @@
 (defn value-map
   "Produce a map where for every [k v] of m, [k (f v)] is part of the new map"
   [f m]
-  (into {} (for [[k v] m] [k (f v)])))
+  (into-map (for [[k v] m] [k (f v)])))
 
 (defn get-translated-macros [macros keybindings]
   (when macros

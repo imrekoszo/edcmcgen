@@ -28,17 +28,17 @@
        sort
        (s/join \newline)))
 
-(defn print-cmc [{:keys [mapped-to-keys
+(defn print-cmc [{:keys [keyboard-commands
                          macros
-                         mapped-to-joy
-                         not-mapped]}
+                         controller-commands
+                         unbound-commands]}
                  static-content]
-  (do (print-section "Commands mapped to keys" (format-bindings mapped-to-keys))
+  (do (print-section "Commands bound to keys" (format-bindings keyboard-commands))
       (when macros
         (print-section "Macros" (format-bindings macros)))
       (when static-content
         (print-section "Static content" static-content))
-      (print-section "Commands mapped to joystick buttons"
-                     (format-commented mapped-to-joy format-key-mapping))
-      (print-section "Bindings not mapped or unknown"
-                     (format-commented not-mapped name))))
+      (print-section "Commands bound to controller or mouse buttons"
+                     (format-commented controller-commands format-key-mapping))
+      (print-section "Unbound commands"
+                     (format-commented unbound-commands name))))

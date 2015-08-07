@@ -1,5 +1,6 @@
 (ns edcmcgen.rawbindings
-  (:require [clojure.xml :as xml]))
+  (:require [clojure.xml :as xml]
+            [edcmcgen.utils :refer :all]))
 
 (defn- seq-of-maps? [value]
   (and (sequential? value)
@@ -32,8 +33,6 @@
         :Inverted iv
         :Deadzone dv}]))
 
-(def ^:private into-map (partial into {}))
-
 (defn- flatten-commands [commands]
   (for [[n {{key :Key device :Device {modifier :Key} :Modifier} :Primary :as v}] commands]
     [n (-> (dissoc v :Primary :Secondary)
@@ -65,12 +64,6 @@
 
 (defn- remove-Device [mapping]
   (update mapping 1 #(dissoc % :Device)))
-
-(defmacro update-if-contains [m k f & args]
-  `(let [m# ~m k# ~k]
-     (if (contains? m# k#)
-       (update m# k# ~f ~@args)
-       m#)))
 
 (defn- clean-mappings [mappings-by-device]
   (-> mappings-by-device

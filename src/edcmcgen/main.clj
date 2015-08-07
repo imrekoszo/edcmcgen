@@ -5,21 +5,9 @@
             [clojure.java.io :as io])
   (:gen-class))
 
-; read config ✓
-; read input ✓
-; process input
-;  transform xml into proper data ~
-;  filter data into groups ~
-;  translate e:d keys
-;  do data manipulation
-; format ✓
-; add extra raw data ✓
-; write output ✓
-
 (defn- exit [status msg]
   (println msg)
   (System/exit status))
-
 
 (defn- check-options [options]
   (cond (contains? options :help) (exit 0 (:help options))

@@ -1,0 +1,27 @@
+(ns edcmcgen.dictionary)
+
+(def replacements-in-order-of-application
+  [["Key_Backspace" "BKSPC"]
+   ["Key_Delete" "KBDEL"]
+   ["Key_DownArrow" "KBDOWN"]
+   ["Key_End" "KBEND"]
+   ["Key_Enter" "ENT"]
+   ["Key_Home" "KBHOME"]
+   ["Key_Insert" "KBINS"]
+   ["Key_LeftArrow" "KBLEFT"]
+   ["Key_LeftBracket" "["]
+   ["Key_LeftShift" "LSHF"]
+   ["Key_PageDown" "KBPGDN"]
+   ["Key_PageUp" "KBPGUP"]
+   ["Key_RightArrow" "KBRIGHT"]
+   ["Key_RightBracket" "]"]
+   ["Key_Space" "SPC"]
+   ["Key_Tab" "TAB"]
+   ["Key_UpArrow" "KBUP"]
+   ["Key_Period" "."]
+   ["Key_Comma" ","]
+   ["Key_Numpad_Add" "KP+"]
+   ["Key_Numpad_Divide" "KP/"]
+   ["Key_Numpad_Multiply" "KP*"]
+   ["Key_Numpad_" "KP"]
+   ["Key_" ""]])

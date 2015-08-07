@@ -8,8 +8,8 @@
 ; read config ✓
 ; read input ✓
 ; process input
-;  transform xml into proper data
-;  filter data into groups
+;  transform xml into proper data ~
+;  filter data into groups ~
 ;  translate e:d keys
 ;  do data manipulation
 ; format ✓

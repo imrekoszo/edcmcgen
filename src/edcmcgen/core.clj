@@ -5,27 +5,15 @@
             [edcmcgen.utils :refer :all]
             [edcmcgen.dictionary :refer :all]))
 
-(defn apply-replacements [s]
+(defn- apply-replacements [s]
   (reduce #(apply (partial s/replace %1) %2)
           s
           replacements-in-order-of-application))
 
-(defn lower-case-if-one-character [s]
+(defn- lower-case-if-one-character [s]
   (if (= 1 (count s))
     (s/lower-case s)
     s))
-
-(defn translate-macro [mac dict]
-  (s/join " " (map #(get dict % %) mac)))
-
-(defn value-map
-  "Produce a map where for every [k v] of m, [k (f v)] is part of the new map"
-  [f m]
-  (into-map (for [[k v] m] [k (f v)])))
-
-(defn get-translated-macros [macros keybindings]
-  (when macros
-    (value-map #(translate-macro % keybindings) (edn/read-string macros))))
 
 (defn- translate-keyboard-command [{key :Key modifier :Modifier}]
   (->> (if modifier
@@ -34,9 +22,20 @@
        apply-replacements
        lower-case-if-one-character))
 
-(defn translate-binds [bindings macros]
-  (->> (raw/parse bindings)
-       (#(update % :keyboard-commands
-                 (partial value-map translate-keyboard-command)))
+(defn- translate-all-keyboard-commands [m]
+  (update m :keyboard-commands #(map-all-values % translate-keyboard-command)))
 
-       (#(assoc % :macros (get-translated-macros macros (:keyboard-commands %))))))
+(defn- translate-macro [mac dict]
+  (s/join " " (map #(get dict % %) mac)))
+
+(defn- get-translated-macros [macro-string keybindings]
+  (when-let [macros (edn/read-string macro-string)]
+    (map-all-values macros translate-macro keybindings)))
+
+(defn- add-macros [m macros-string]
+  (assoc m :macros (get-translated-macros macros-string (:keyboard-commands m))))
+
+(defn translate-binds [bindings macros]
+  (-> (raw/parse bindings)
+      translate-all-keyboard-commands
+      (add-macros macros)))

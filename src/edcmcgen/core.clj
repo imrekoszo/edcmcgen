@@ -16,11 +16,10 @@
     s))
 
 (defn- translate-keyboard-command [{key :Key modifier :Modifier}]
-  (->> (if modifier
-         (str modifier " " key)
-         key)
-       apply-replacements
-       lower-case-if-one-character))
+  (let [translated-key (lower-case-if-one-character (apply-replacements key))]
+    (if modifier
+      (str (apply-replacements modifier) " " translated-key)
+      translated-key)))
 
 (defn- translate-all-keyboard-commands [m]
   (update m :keyboard-commands #(map-all-values % translate-keyboard-command)))

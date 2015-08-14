@@ -1,12 +1,7 @@
 (ns edcmcgen.options
   (:require [clojure.string :as s]
-            [clojure.tools.cli :as cli])
-  (:import [java.io.File]))
-
-(defn- existing-file? [s]
-  (let [f (clojure.java.io/as-file s)]
-    (and (.exists f)
-         (not (.isDirectory f)))))
+            [clojure.tools.cli :as cli]
+            [edcmcgen.filesystem :refer [existing-file?]]))
 
 (def ^:private cli-options
   [["-h" "--help"]

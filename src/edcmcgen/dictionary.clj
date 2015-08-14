@@ -1,6 +1,10 @@
 (ns edcmcgen.dictionary)
 
-(def replacements-in-order-of-application
+(def
+  ^{:doc "Dictionary between Elite: Dangerous key names and CH Products key codes.
+The application will apply replacements in the order they are defined.
+Therefore more general replacements should be added at the end."}
+  replacements-in-order-of-application
   [["Key_Backspace" "BKSPC"]
    ["Key_Delete" "KBDEL"]
    ["Key_DownArrow" "KBDOWN"]

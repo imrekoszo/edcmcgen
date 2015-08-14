@@ -1,4 +1,4 @@
-(defproject edcmcgen "0.2.0-SNAPSHOT"
+(defproject edcmcgen "0.2.1-SNAPSHOT"
   :description "A small utility to generate a CH Products cmc file from Elite: Dangerous bindings"
   :url "https://github.com/imrekoszo/edcmcgen"
   :license {:name "MIT License"

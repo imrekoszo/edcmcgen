@@ -17,12 +17,17 @@
 (defn read-input [{bindings :elite-bindings-path
                    macros   :macro-definitions-path
                    static   :static-cmc-content-path}]
-  {:elite-bindings    (io/input-stream bindings)
+  {:elite-bindings    bindings
    :macro-definitions (when macros (slurp macros))
    :static-cmc        (when static (slurp static))})
 
+(defn process [{:keys [elite-bindings macro-definitions static-cmc]}]
+  (-> (translate-binds elite-bindings macro-definitions)
+      (print-cmc static-cmc)))
+
 (defn -main [& args]
-  (let [options (-> args get-options check-options)
-        {:keys [elite-bindings macro-definitions static-cmc]} (read-input options)
-        info (translate-binds elite-bindings macro-definitions)]
-    (print-cmc info static-cmc)))
+  (-> args
+      get-options
+      check-options
+      read-input
+      process))
